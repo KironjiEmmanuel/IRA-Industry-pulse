@@ -1,0 +1,172 @@
+{
+  "methodology": "hybrid: percentile bands (p25/p75) for GB/LT; justified fixed bands for Micro (established-player range only, n=2 reliable filers). Bands recomputed every data-load cycle against the live dataset.",
+  "data_cleaning_applied": {
+    "excluded_company_ids": [
+      17,
+      46,
+      216,
+      247,
+      1032,
+      1054,
+      37,
+      434
+    ],
+    "merged_company_ids": {
+      "294": 61,
+      "318": 54,
+      "1036": 44
+    },
+    "note": "37=units-header junk row; 434=overlapping duplicate load of East Africa Reinsurance (2024Q1-Q3), excluded not merged"
+  },
+  "bands": {
+    "GB": {
+      "ifrs17_margin": {
+        "type": "percentile",
+        "polarity": "higher_better",
+        "distressed_below": -0.0152,
+        "healthy_above": 0.1163
+      },
+      "loss_ratio": {
+        "type": "percentile",
+        "polarity": "lower_better",
+        "healthy_below": 0.5366,
+        "distressed_above": 0.7669
+      },
+      "commission_ratio": {
+        "type": "percentile",
+        "polarity": "lower_better",
+        "healthy_below": 0.0571,
+        "distressed_above": 0.1112
+      },
+      "expense_ratio": {
+        "type": "percentile",
+        "polarity": "lower_better",
+        "healthy_below": 0.2029,
+        "distressed_above": 0.4274
+      },
+      "combined_ratio": {
+        "type": "percentile",
+        "polarity": "lower_better",
+        "healthy_below": 0.9638,
+        "distressed_above": 1.2018
+      }
+    },
+    "LT": {
+      "ifrs17_margin": {
+        "type": "percentile",
+        "polarity": "higher_better",
+        "distressed_below": -0.1053,
+        "healthy_above": 0.1994
+      }
+    },
+    "Micro": {
+      "note": "fixed bands, justified from established filers only (company_id 69 Britam Micro, 109 Turaco Micro); other Micro company_ids (76,91,96,131) are thin-premium/noisy and should be excluded from banding via the revenue-floor rule, shown qualitatively instead",
+      "established_company_ids": [
+        69,
+        109
+      ],
+      "ifrs17_margin": {
+        "type": "fixed",
+        "polarity": "higher_better",
+        "distressed_below": 0.0,
+        "healthy_above": 0.15
+      },
+      "loss_ratio": {
+        "type": "fixed",
+        "polarity": "lower_better",
+        "healthy_below": 0.4,
+        "distressed_above": 0.65
+      },
+      "commission_ratio": {
+        "type": "fixed",
+        "polarity": "lower_better",
+        "healthy_below": 0.05,
+        "distressed_above": 0.15
+      },
+      "expense_ratio": {
+        "type": "fixed",
+        "polarity": "lower_better",
+        "healthy_below": 0.32,
+        "distressed_above": 0.42
+      },
+      "combined_ratio": {
+        "type": "fixed",
+        "polarity": "lower_better",
+        "healthy_below": 0.9,
+        "distressed_above": 1.15
+      }
+    }
+  },
+  "drift_feature": {
+    "definition": "z = (qoq_delta_of_discrete_ratio - segment_median_delta) / (1.4826 * segment_MAD_delta); robust z-score, resistant to Micro's thin-denominator noise",
+    "bands": {
+      "stable": "|z| < 1.0",
+      "moderate_drift": "1.0 <= |z| < 2.5",
+      "significant_drift": "|z| >= 2.5"
+    },
+    "direction": "sign of qoq_delta combined with metric polarity determines improving vs worsening label",
+    "segment_stats": {
+      "GB": {
+        "ifrs17_margin": {
+          "median_delta": -0.0018,
+          "mad": 0.0985,
+          "n": 291
+        },
+        "loss_ratio": {
+          "median_delta": 0.0021,
+          "mad": 0.1309,
+          "n": 284
+        },
+        "commission_ratio": {
+          "median_delta": 0.0006,
+          "mad": 0.0354,
+          "n": 288
+        },
+        "expense_ratio": {
+          "median_delta": -0.004,
+          "mad": 0.0583,
+          "n": 288
+        },
+        "combined_ratio": {
+          "median_delta": -0.0101,
+          "mad": 0.1559,
+          "n": 284
+        }
+      },
+      "LT": {
+        "ifrs17_margin": {
+          "median_delta": 0.0241,
+          "mad": 0.3144,
+          "n": 198
+        }
+      },
+      "Micro": {
+        "ifrs17_margin": {
+          "median_delta": 0.0381,
+          "mad": 0.1552,
+          "n": 12
+        },
+        "loss_ratio": {
+          "median_delta": 0.0335,
+          "mad": 0.0854,
+          "n": 13
+        },
+        "commission_ratio": {
+          "median_delta": 0.0062,
+          "mad": 0.074,
+          "n": 13
+        },
+        "expense_ratio": {
+          "median_delta": -0.0208,
+          "mad": 0.1336,
+          "n": 13
+        },
+        "combined_ratio": {
+          "median_delta": 0.0369,
+          "mad": 0.9399,
+          "n": 13
+        }
+      }
+    }
+  }
+}
